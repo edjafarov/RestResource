@@ -10,26 +10,29 @@ module.exports = function RestResourceFactory(agent){
 		options = options || {};
 		options[name] = {
 			url: baseUrl,
-			name: name
+			name: name,
+			parent: options.parent
 		}
 		api = api ||{};
-		var baseUrl = baseUrl || '/';
+		
 		
 		
 		api.createCRUD= function(newName, newUrl){
-			if(options.parent) newOptions.parent.parent = options.parent;
 			var newOptions = {};
+
 			newOptions = {
 				name: newName,
 				url: newUrl,
 				parent: options.parent
 			};			
+			if(options.parent) newOptions.parent.parent = options.parent;
 			return create(newName, newUrl, options, api);
 		}
 
 		
 		// GET /items
 		api['read' + capitaliseFirstLetter(name).plrl] = function(data, context){
+			
 			var url = prepareUrl(data, options[name]);
 			var arg = [].slice.call(arguments);
 			arg[2] = url;
@@ -90,6 +93,7 @@ module.exports = function RestResourceFactory(agent){
 			
 			var url = prepareUrl(data, newOptions);
 			var arg = [].slice.call(arguments);
+			arg[0] = getLastChunk(data, newOptions);
 			arg[2] = url;
 			arg[3] = {};
 		  return BasicResource.put.apply(this, arg);
@@ -139,15 +143,23 @@ module.exports = function RestResourceFactory(agent){
 }
 
 
-
+function getLastChunk(data, options){
+	var opts = optionsToArray(options).reverse();
+	var currentChunk = data;
+	
+	opts.forEach(function(chunk){
+		currentChunk = currentChunk[chunk.name] ||currentChunk|| {};		
+	},"")
+	return currentChunk;
+}
 function prepareUrl(data, options){
 	var result = "";
 	var opts = optionsToArray(options).reverse();
 	var currentChunk = data;
-
+	
 	result = opts.reduce(function(url, chunk){
-		currentChunk = currentChunk[chunk.name]		
-		url+=makeUrl(chunk.url, currentChunk || {});		
+		currentChunk = currentChunk[chunk.name] ||currentChunk|| {};		
+		url+=makeUrl(chunk.url, currentChunk);		
 		return url;
 	},"")
 	return result;

@@ -96,31 +96,16 @@ describe('simple API', function(){
 		beforeEach(function(){
 			API.readUser(MockUserId,{});
 		})
-		it('should del /api/user/:id', function(){
+		it('should get /api/user/:id', function(){
 			sinon.assert.calledWith(agent.get, '/api/users/' + MockUserId.id)
 		})
 	})	
-	describe('readUser', function(){
-		beforeEach(function(){
-			API.readUser(MockUserId,{});
-		})
-		it('should del /api/user/:id', function(){
-			sinon.assert.calledWith(agent.get, '/api/users/' + MockUserId.id)
-		})
-	})
-	describe('readUser', function(){
-		beforeEach(function(){
-			API.readUser(MockUserId,{});
-		})
-		it('should del /api/user/:id', function(){
-			sinon.assert.calledWith(agent.get, '/api/users/' + MockUserId.id)
-		})
-	})	
+
 	describe('updateUser', function(){
 		beforeEach(function(){
 			API.updateUser(MockUser,{});
 		})
-		it('should del /api/user/:id', function(){
+		it('should put /api/user/:id', function(){
 			sinon.assert.calledWith(agent.put, '/api/users/' + MockUserId.id)
 			sinon.assert.calledWith(resp.send, MockUser)
 		})
