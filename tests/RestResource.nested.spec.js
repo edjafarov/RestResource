@@ -59,10 +59,37 @@ describe('nested API', function(){
 		API  = RestResource('user', '/api/users');
 		API.withUsers.createCRUD('item', '/items');
 		API.withUser.createCRUD('foo', '/foo');
+
 	})
 	
 	afterEach(function(){
 		sandbox.restore();
+	})
+
+	describe('withUsers.get(/test)', function(){
+		beforeEach(function(){
+			API.withUsers.get({},{},'/test');
+		})
+		it('should get /api/users/test', function(){
+			sinon.assert.calledWith(agent.get, '/api/users/test')
+		})
+	})
+	describe('withUser.get(/test)', function(){
+		beforeEach(function(){
+			API.withUser.get({id: MockId.id},{},'/test');
+		})
+		it('should get /api/users/:id/test', function(){
+			sinon.assert.calledWith(agent.get, '/api/users/' +MockId.id+ '/test')
+		})
+	})
+
+	describe('withUser.put(/test)', function(){
+		beforeEach(function(){
+			API.withUser.get({id: MockId.id},{},'/test');
+		})
+		it('should get /api/users/:id/test', function(){
+			sinon.assert.calledWith(agent.get, '/api/users/' +MockId.id+ '/test')
+		})
 	})
 
 	describe('withUsers.readItems', function(){
@@ -108,7 +135,7 @@ describe('nested API', function(){
 		})
 	})	
 	
-	describe('updateFoo', function(){
+	describe('withUser.updateFoo', function(){
 		beforeEach(function(){
 			MockId.foo = MockFoo;
 			API.withUser.updateFoo(MockId,{});
@@ -119,7 +146,7 @@ describe('nested API', function(){
 		})
 	})
 
-	describe('deleteUser', function(){
+	describe('withUser.deleteFoo', function(){
 		beforeEach(function(){
 			API.withUser.deleteFoo(MockId,{});
 		})

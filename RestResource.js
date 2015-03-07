@@ -15,6 +15,17 @@ module.exports = function RestResourceFactory(agent){
 		}
 		api = api ||{};
 		
+
+		Object.keys(BasicResource).reduce(function(res, method){
+			res[method] = function(data){
+				var arg = arguments;
+				var url = [prepareUrl(data, options.parent),arg[2]].join("");
+				arg[0] = data.body;
+				arg[2] = url;
+				return BasicResource[method].apply(this, arg);
+			}
+			return res;
+		}, api);
 		
 		
 		api.createCRUD= function(newName, newUrl){
@@ -32,7 +43,6 @@ module.exports = function RestResourceFactory(agent){
 		
 		// GET /items
 		api['read' + capitaliseFirstLetter(name).plrl] = function(data, context){
-			
 			var url = prepareUrl(data, options[name]);
 			var arg = [].slice.call(arguments);
 			arg[2] = url;
@@ -44,6 +54,7 @@ module.exports = function RestResourceFactory(agent){
 		api['create' + capitaliseFirstLetter(name).sing] = function(data, context){
 			var url = prepareUrl(data, options[name]);
 			var arg = [].slice.call(arguments);
+			arg[0] = getLastChunk(data, options[name]);
 			arg[2] = url;
 			arg[3] = {};
 		  return BasicResource.post.apply(this, arg);
@@ -54,6 +65,7 @@ module.exports = function RestResourceFactory(agent){
 		api['update' + capitaliseFirstLetter(name).plrl] = function(data, context){
 			var url = prepareUrl(data, options[name]);
 			var arg = [].slice.call(arguments);
+			arg[0] = getLastChunk(data, options[name]);
 			arg[2] = url;
 			arg[3] = {};
 		  return BasicResource.put.apply(this, arg);
@@ -156,7 +168,6 @@ function prepareUrl(data, options){
 	var result = "";
 	var opts = optionsToArray(options).reverse();
 	var currentChunk = data;
-	
 	result = opts.reduce(function(url, chunk){
 		currentChunk = currentChunk[chunk.name] ||currentChunk|| {};		
 		url+=makeUrl(chunk.url, currentChunk);		

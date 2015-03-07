@@ -27,11 +27,11 @@ function makeUrl(url, params){
 
 
 module.exports = function(agent){
+
   var resource = Resource(agent);
   return {
     get:function get(data, context, url, options){
       return new Promise(function(resolve, reject){
-
         var req = resource.get(makeUrl(url, data || {}));
 
         req.on('error', function(err){
