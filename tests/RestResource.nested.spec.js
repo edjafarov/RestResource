@@ -140,7 +140,7 @@ describe('nested API', function(){
 			MockId.foo = MockFoo;
 			API.withUser.updateFoo(MockId,{});
 		})
-		it('should del /api/user/:id', function(){
+		it('should del /api/user/:id/foo/:id', function(){
 			sinon.assert.calledWith(agent.put, '/api/users/' + MockId.id +'/foo/' + MockFoo.id)
 			sinon.assert.calledWith(resp.send, MockFoo)
 		})
@@ -150,7 +150,7 @@ describe('nested API', function(){
 		beforeEach(function(){
 			API.withUser.deleteFoo(MockId,{});
 		})
-		it('should del /api/user/:id', function(){
+		it('should del /api/user/:id/foo/:id', function(){
 			sinon.assert.calledWith(agent.del, '/api/users/' + MockId.id +'/foo/' + MockFoo.id)
 		})
 	})	
