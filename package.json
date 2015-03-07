@@ -1,8 +1,8 @@
 {
   "name": "rest-resource",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "description": "",
-  "main": "index.js",
+  "main": "./RestResource.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha ./tests/**/*.spec.js"
   },
