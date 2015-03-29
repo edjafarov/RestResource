@@ -46,7 +46,9 @@ module.exports = function RestResourceFactory(agent){
 			var url = prepareUrl(data, options[name]);
 			var arg = [].slice.call(arguments);
 			arg[2] = url;
-			arg[3] = {};
+			arg[3] = {
+				query: parseQuery(data, options[name])
+			};
 		  return BasicResource.get.apply(this, arg);
 		}
 
@@ -76,7 +78,9 @@ module.exports = function RestResourceFactory(agent){
 			var url = prepareUrl(data, options[name]);
 			var arg = [].slice.call(arguments);
 			arg[2] = url;
-			arg[3] = {};
+			arg[3] = {
+				query: parseQuery(data, options[name])
+			};
 		  return BasicResource.del.apply(this, arg);
 		}
 
@@ -91,7 +95,9 @@ module.exports = function RestResourceFactory(agent){
 			var url = prepareUrl(data, newOptions);
 			var arg = [].slice.call(arguments);
 			arg[2] = url;
-			arg[3] = {};
+			arg[3] = {
+				query: parseQuery(data, newOptions)
+			}
 		  return BasicResource.get.apply(this, arg);
 		}
 
@@ -121,7 +127,9 @@ module.exports = function RestResourceFactory(agent){
 			var url = prepareUrl(data, newOptions);
 			var arg = [].slice.call(arguments);
 			arg[2] = url;
-			arg[3] = {};
+			arg[3] = {
+				query: parseQuery(data, newOptions)
+			};
 		  return BasicResource.del.apply(this, arg);
 		}
 
@@ -151,6 +159,18 @@ module.exports = function RestResourceFactory(agent){
 		}	
 
 		return api;
+	}
+}
+
+function parseQuery(data, newOptions){
+	return function(){
+		var lastChunk = getLastChunk(data, newOptions);
+		return Object.keys(lastChunk).reduce(function(result, name){
+			if(Array.isArray(lastChunk[name])) {
+				result[name] = lastChunk[name].join(",")
+			}
+			return result;
+		}, lastChunk);
 	}
 }
 
@@ -198,79 +218,6 @@ function traverseUrl(options){
 	return pre + options.url;
 }
 
-/*
-function crud(name, baseUrl, result){
-	return function createCRUD(inner_name, inner_url){
-
-		var newUrl = [baseUrl, inner_url].join("");
-		
-		var newResult;
-		if(result['with' + capitaliseFirstLetter(name).plrl]) {
-			newResult = result['with' + capitaliseFirstLetter(name).plrl];
-		}
-		var newOptions =  {};		
-		newOptions.parent = result;
-		
-		var newPlrlCrud = create(inner_name, inner_url, baseUrl, newResult);
-		result['with' + capitaliseFirstLetter(name).plrl] = newPlrlCrud;		
-		newResult = newPlrlCrud;
-
-
-		var newOptions =  {};		
-		newOptions.parent = result;		
-		
-		var newSingCrud = create(inner_name, inner_url, [baseUrl, ":id"].join("/"), newResult);
-		result['with' + capitaliseFirstLetter(name).sing] = newSingCrud;
-		
-		return result;
-	}
-}
-
-/*
-module.exports = function RestResourceFactory(agent){
-	var BasicResource = basicResource(agent);
-	var api = {
-  	createCRUD: create,
-  }
-
-  return api;
-
-	function create(name, baseUrl){
-		var result = {};
-		result._meta = {
-			name: name,
-			baseUrl: baseUrl
-		}
-
-		Object.keys(BasicResource).reduce(function(res, method){
-			res[method] = function(){
-				var arg = arguments;
-				arg[2] = [result._meta.baseUrl, arguments[2]].join("");
-				return BasicResource[method].apply(this, arg);
-			}
-			return res;
-		}, result);
-
-
-		result['read' + capitaliseFirstLetter(name)] = function(options){
-			return function (data, context, url){
-				var arg = arguments;
-				arg[2] = [result._meta.baseUrl, arguments[2]].join("");
-				arg[3] = options;
-
-		    return BasicResource.get.apply(this, arg);
-		  }
-		}
-
-	  result.createCRUD = function(name, baseUrl){
-	  	var newBase = [result._meta.baseUrl, baseUrl].join("");
-	  	var newCrud = create(name, newBase);
-	  	return result['with' + capitaliseFirstLetter(result._meta.name)] = newCrud;
-	  }
-
-	  return result;
-	}
-}
 
 
 
@@ -287,7 +234,49 @@ RestResourceFactory.with(Users.readUser).createCRUD('item', '/items')
 {item: [:id]} -> .withUsers.readItems() ->{Items}
 {} -> .withUsers.readItems() ->{Items}
 
+//query params
+//body
+//path
+//change id
+{:id, a:1, b:2}
+GET
+get?a=1&b=2
+{id:[id1, id2, id3, id4]}
+get?id=id1,id2,id3,id4
+
+
+PUT
+{a:1,b:2}
+
+{a:1,b:2, query: {://}}
+{:id, body: {:}}
+
+POST
+{a:1,b:2}
+
+DELETE
+?a=1&b=2
+
+
+{:id
+	item:{
+		:id,
+		body:{
+			:id,
+			:name
+		}
+	}
+}
+
+API. req
+
+API.withUser({id}).changeItem({})
+().withUser(User).item({:id})
+context.createItem(API.withUser(User).Item({}))
+
 .withUsers.withItems.withWtf.get('/ddd')
+
+
 
 */
 function capitaliseFirstLetter(string)

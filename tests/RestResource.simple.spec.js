@@ -7,6 +7,18 @@ var sinon = require('sinon');
 var MockUserId = {
 	id: 984
 };
+
+var MockUserIdOpt = {
+	id: 984,
+	opt1: "opt1",
+	opt2: "opt2"
+};
+
+var MockUsersOpt = {
+	opt1: "opt1",
+	opt2: ["opt21", "opt22", "opt23"]
+};
+
 var MockUser = {
 	id: 984,
 	name: "MockUser"
@@ -31,7 +43,8 @@ describe('simple API', function(){
 		resp = {
 			on: sandbox.spy(),
 			end: sandbox.stub(),
-			send: sandbox.stub()
+			send: sandbox.stub(),
+			query: sandbox.stub()
 		}
 
 
@@ -62,9 +75,20 @@ describe('simple API', function(){
 			API.readUsers({},{});
 		})
 		it('should get /api/users', function(){
-			sinon.assert.calledWith(agent.get, '/api/users')
+			sinon.assert.calledWith(agent.get, '/api/users');
 		})
 	})
+
+	describe('readUsers with opts', function(){
+		beforeEach(function(){
+			API.readUsers(MockUsersOpt,{});
+		})
+		it('should get /api/users', function(){
+			sinon.assert.calledWith(agent.get, '/api/users')
+			sinon.assert.calledWith(resp.query, {opt1: "opt1", opt2:"opt21,opt22,opt23"});
+
+		})
+	})	
 	describe('createUser', function(){
 		beforeEach(function(){
 			API.createUser(MockUser,{});
@@ -101,6 +125,16 @@ describe('simple API', function(){
 		})
 	})	
 
+	describe('readUser with opts', function(){
+		beforeEach(function(){
+			API.readUser(MockUserIdOpt,{});
+		})
+		it('should get /api/user/:id', function(){
+			sinon.assert.calledWith(agent.get, '/api/users/' + MockUserId.id)
+			sinon.assert.calledWith(resp.query, MockUserIdOpt)
+		})
+	})	
+
 	describe('updateUser', function(){
 		beforeEach(function(){
 			API.updateUser(MockUser,{});
@@ -119,46 +153,3 @@ describe('simple API', function(){
 		})
 	})	
 });
-
-//console.log(API.readItems({},{}))
-
-/*
-API.withUser.createCRUD('item', '/item');
-API.withUsers.createCRUD('top', '/top');
-//console.log(Item);
-API.withUsers.withTops.createCRUD('stuff', '/stuff');
-//console.log(stuff);
-
-console.log(API);
-console.log(API.withUser.readItem({
-	user:{
-		id:10, 
-		item:{
-			id:12
-		}
-	}
-}));
-console.log(API.withUsers.withTops.readStuff({
-	user:{
-		top:{
-			stuff:{
-				id:123
-			}
-		}
-	}
-}));
-/*console.log(User.withUser.readItem());
-console.log(User.withUser.readItems());
-console.log(User.withUsers.readItem());
-console.log(User.withUsers.readItem())
-
-//console.log(User.withUser);
-/*
-var crud = RestResource(agent);
-var User = crud.createCRUD('user','/api/users');
-var Item = User.createCRUD('item', '/items')*/
-//console.log(Item.readItem())
-//User.get({},{},'/test');
-//console.log(User.withUser.readItem()({},{},''));
-//User.withItems.get({},{}, '/test2')
-//console.log(agent.get.getCall(0).args);

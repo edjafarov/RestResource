@@ -58,6 +58,7 @@ describe('piped API', function(){
 		RestResource = RestResourceFactory(agent);
 		API  = RestResource('user', '/api/users');
 		API.withUsers.createCRUD('item', '/items');
+		API.withUser.createCRUD('foo', '/foo');
 		
 		PromisePipe.use('api', API);
 	});
@@ -86,6 +87,16 @@ describe('piped API', function(){
 		})
 	})
 
+	describe('withUsers.readItem', function(){
+		beforeEach(function(done){
+			pipe = PromisePipe().api.withUsers.readItem();
+			pipe({item:{id:5}},{}).then(function(){done()});
+		})
+		it('should get /api/users/items', function(){
+			sinon.assert.calledWith(agent.get, '/api/users/items/5')
+		})
+	})
+
 	describe('withUsers.createItems', function(){
 		beforeEach(function(done){
 			pipe = PromisePipe().api.withUsers.createItem();
@@ -106,13 +117,22 @@ describe('piped API', function(){
 			sinon.assert.calledWith(resp.send, MockItems)
 		})
 	})
-	describe('withUsers.deleteItems', function(){
+	describe('deleteItems', function(){
 		beforeEach(function(done){
 			pipe = PromisePipe().api.deleteUsers();
 			pipe(MockItems,{}).then(function(){done()});
 		})
 		it('should del /api/users', function(){
 			sinon.assert.calledWith(agent.del, '/api/users')
+		})
+	})
+	describe('withUser.readItem', function(){
+		beforeEach(function(done){
+			pipe = PromisePipe().api.withUser.readFoo();
+			pipe(MockId,{}).then(function(){done()});
+		})
+		it('should del /api/user/:id/foo/:id', function(){
+			sinon.assert.calledWith(agent.get, '/api/users/' + MockId.id +'/foo/' + MockId.foo.id)
 		})
 	})	
 
