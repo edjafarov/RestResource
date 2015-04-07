@@ -1,6 +1,6 @@
 var RestResourceFactory = require('../RestResource');
 var sinon = require('sinon');
-var PromisePipe = require('promise-pipe');
+var PromisePipe = require('promise-pipe')();
 
 var MockId = {
 	id: 984,
